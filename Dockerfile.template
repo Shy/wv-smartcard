@@ -12,10 +12,10 @@ RUN install_packages \
     python-setuptools \
     swig \
     gcc \
-    python-dev \
-    python3-pyscard
+    python-dev 
 
 # Upgrade pip
+
 RUN pip install --upgrade pip
 RUN pip install pyscard
 
