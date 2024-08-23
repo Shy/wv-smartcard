@@ -1,42 +1,37 @@
-# Base-image for python on any machine using a template variable
-FROM resin/%%RESIN_MACHINE_NAME%%-python:2.7
+ARG BALENA_ARCH=%%BALENA_ARCH%%
 
-# Set the maintainer
-LABEL maintainer="Shy Ruparel"
+FROM balenalib/$BALENA_ARCH-debian
+ARG BALENA_ARCH=%%BALENA_ARCH%%
 
-# Enable systemd init system
-ENV INITSYSTEM on
 
-# Set the working directory
+RUN install_packages dnsmasq wireless-tools
+
+# use latest version. If specific version is required, it should be provided as vX.Y.Z, e.g v4.11.37
+ARG VERSION="latest"
+
 WORKDIR /usr/src/app
 
-# We have split up the resin-wifi-connect and Display-O-Tron HAT configuration to make clear
-# the different parts needed. In your dockerfile you should combine these steps to reduce
-# the number of layers.
-
-# -- Start of resin-wifi-connect section -- #
-
-# Set the device type environment variable using Dockerfile templates
-ENV DEVICE_TYPE=%%RESIN_MACHINE_NAME%%
-
+RUN \
+    export BASE_URL="https://github.com/balena-os/wifi-connect/releases" &&\    
+    case $BALENA_ARCH in \
+    "aarch64") \
+    BINARY_ARCH_NAME="aarch64-unknown-linux-gnu" ;; \
+    "amd64") \
+    BINARY_ARCH_NAME="x86_64-unknown-linux-gnu" ;;\
+    "armv7hf") \
+    BINARY_ARCH_NAME="armv7-unknown-linux-gnueabihf" ;;\
+    *) \
+    echo >&2 "error: unsupported architecture ($BALENA_ARCH)"; exit 1 ;; \ 
+    esac;\
+    if [ ${VERSION} = "latest" ]; then \
+    export URL_PARTIAL="latest/download" ; \
+    else \
+    export URL_PARTIAL="download/${VERSION}" ; \
+    fi; \
+    curl -Ls "$BASE_URL/$URL_PARTIAL/wifi-connect-$BINARY_ARCH_NAME.tar.gz" \
+    | tar -xvz -C  /usr/src/app/
 # Use apt-get to install dependencies
 RUN apt-get update && apt-get install -yq --no-install-recommends \
-    dnsmasq && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install resin-wifi-connect
-RUN curl https://api.github.com/repos/resin-io/resin-wifi-connect/releases/latest -s \
-    | grep -hoP 'browser_download_url": "\K.*%%RESIN_ARCH%%\.tar\.gz' \
-    | xargs -n1 curl -Ls \
-    | tar -xvz -C /usr/src/app/
-
-# -- End of resin-wifi-connect section -- #
-
-# Use apt-get to install dependencies
-RUN apt-get update && apt-get install -yq --no-install-recommends \
-    python-dev \
-    python-smbus \
-    python-psutil \
     libusb-1.0-0-dev \ 
     libpcsclite-dev \  
     pcscd \ 
@@ -50,7 +45,6 @@ RUN pip install --upgrade pip
 
 # Install pyscard library
 RUN pip install pyscard
-
 
 # Copy everything into the container
 COPY . ./
