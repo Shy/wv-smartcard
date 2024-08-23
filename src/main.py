@@ -1,25 +1,39 @@
-#!/usr/bin/env python
+from time import sleep
 
-import time
-import subprocess
-import process
+from smartcard.CardMonitoring import CardMonitor, CardObserver
+from smartcard.util import toHexString
+
+
+class PrintObserver(CardObserver):
+    """A simple card observer that is notified
+    when cards are inserted/removed from the system and
+    prints the list of cards
+    """
+
+    def update(self, observable, actions):
+        (addedcards, removedcards) = actions
+        for card in addedcards:
+            print("+Inserted: ", toHexString(card.atr))
+
+        for card in removedcards:
+            print("-Removed: ", toHexString(card.atr))
 
 
 def main():
-
-    while True:
-        # Run one process loop
-        process.main()
-        # Sleep to avoid 100% CPU usage
-        time.sleep(5)
-
-
-def clear_wifi(ch, evt):
-    # When the button is pressed resin-wifi-connect is started with `--clear'
-    # flag set to 'true'. This forces resin-wifi-connect to remove any
-    # previously configured WiFi connections.2
-    print("Button pressed")
-    subprocess.call(["resin-wifi-connect", "--clear=true"])
+    try:
+        cardmonitor = CardMonitor()
+        cardobserver = PrintObserver()
+        while True:
+            print("Insert or remove a smartcard in the system.")
+            print("This program will exit in 10 seconds")
+            print("")
+            cardmonitor.addObserver(cardobserver)
+            sleep(10)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        cardmonitor.deleteObserver(cardobserver)
+        sleep(5)
 
 
 if __name__ == "__main__":
