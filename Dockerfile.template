@@ -8,7 +8,6 @@ RUN install_packages \
     libacsccid1 \ 
     wireless-tools \
     python-setuptools \
-    swig \
     gcc \
     python-dev
 
