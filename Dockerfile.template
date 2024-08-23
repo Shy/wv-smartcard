@@ -6,8 +6,11 @@ RUN install_packages \
     pcscd \ 
     pcsc-tools \ 
     libacsccid1 \ 
-    wireless-tools && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    wireless-tools \
+    python-setuptools \
+    swig \
+    gcc \
+    python-dev
 
 # Upgrade pip
 RUN pip install --upgrade pip
