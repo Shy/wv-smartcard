@@ -8,14 +8,13 @@ RUN install_packages \
     libacsccid1 \ 
     wireless-tools \
     python-setuptools \
+    swig \
     gcc \
-    python-dev
+    python-dev \
+    python3-pyscard
 
 # Upgrade pip
 RUN pip install --upgrade pip
-
-# Install pyscard library
-RUN pip install pyscard
 
 # Copy everything into the container
 COPY . ./
