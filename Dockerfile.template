@@ -12,6 +12,7 @@ RUN install_packages \
     python-setuptools \
     swig \
     gcc \
+    cmake \
     python-dev 
 
 # Upgrade pip
