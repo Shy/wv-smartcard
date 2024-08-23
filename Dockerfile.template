@@ -1,8 +1,10 @@
 FROM balenalib/raspberry-pi-python:latest
+ENV UDEV=on
 
 RUN install_packages \
     libusb-1.0-0-dev \ 
-    libpcsclite-dev \  
+    libpcsclite-dev \
+    uhubctl \
     pcscd \ 
     pcsc-tools \ 
     libacsccid1 \ 
