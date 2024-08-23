@@ -17,6 +17,8 @@ RUN install_packages \
 
 # Upgrade pip
 RUN pip install --upgrade pip
+RUN pip install pyscard
+
 
 # Copy everything into the container
 COPY . ./
