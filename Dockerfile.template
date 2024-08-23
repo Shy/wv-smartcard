@@ -11,6 +11,9 @@ RUN install_packages \
     wireless-tools \
     python-setuptools \
     swig \
+    build-essential \
+    make \
+    ninja-build \
     gcc \
     cmake \
     python-dev 
